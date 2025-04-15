@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro de Alunos - Academia MoveUp</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white text-gray-800 p-6 font-sans">
+  <div class="max-w-4xl mx-auto border border-gray-300 rounded-xl p-6 shadow-md">
+    <h1 class="text-3xl font-semibold text-center mb-6">MoveUp</h1>
+
+    <!-- Formulário de cadastro -->
+    <div class="border rounded-xl p-6 mb-6 bg-gray-50">
+      <h2 class="text-xl font-medium mb-4">Adicionar novo aluno</h2>
+      <form class="space-y-4">
+        <div>
+          <label for="nome" class="block text-sm font-medium">Nome</label>
+          <input type="text" id="nome" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Escreva o nome completo" />
+        </div>
+        <div>
+          <label for="cpf" class="block text-sm font-medium">CPF</label>
+          <input type="text" id="cpf" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="___.___.___-__" />
+        </div>
+        <button type="submit" class="bg-green-400 hover:bg-green-500 text-white px-4 py-2 rounded shadow">Adicionar novo aluno</button>
+      </form>
+    </div>
+
+    <!-- Alunos cadastrados -->
+    <div class="border-t pt-4">
+      <div class="flex justify-between mb-2">
+        <h3 class="text-lg font-medium">Alunos cadastrados</h3>
+        <p>Total de alunos: <span id="total-alunos">0</span></p>
+      </div>
+
+      <!-- Cartão de aluno -->
+      <div class="border rounded-xl p-4 flex items-start gap-4 bg-white shadow-md">
+        <div class="w-16 h-16 bg-gray-200 rounded"></div>
+        <div class="flex-1">
+          <p><strong>id:</strong> 1</p>
+          <p><strong>nome:</strong> Fulano</p>
+          <p><strong>cpf:</strong> 123.456.789-00</p>
+          <p><strong>status:</strong> Ativo</p>
+        </div>
+        <div class="flex flex-col gap-2">
+          <button class="bg-yellow-300 hover:bg-yellow-400 px-3 py-1 rounded">Desativar</button>
+          <button class="bg-blue-400 hover:bg-blue-500 text-white px-3 py-1 rounded">Editar</button>
+          <button class="bg-red-400 hover:bg-red-500 text-white px-3 py-1 rounded">Excluir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+
+
+</body>
+</html>

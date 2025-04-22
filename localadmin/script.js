@@ -74,7 +74,38 @@ function exibirAlunosNaTela(alunos) {
   });
 }
 
+<<<<<<< HEAD
 // listar
+=======
+function alterarStatusAluno(alunoId, novoStatus) {
+  fetch(`/alunos/${alunoId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ status: novoStatus }),
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Resposta do servidor:', data);
+    // Aqui você atualizaria a interface do usuário com o novo status
+  })
+  .catch(error => {
+    console.error('Erro ao alterar o status:', error);
+  });
+}
+
+// Exemplo de como chamar a função ao clicar em um botão:
+const botaoAlterarStatus = document.getElementById('botao-status-aluno-123');
+botaoAlterarStatus.addEventListener('click', () => {
+  const alunoId = 'ID_DO_ALUNO'; // Substitua pelo ID real do aluno
+  const statusAtual = /* Obtenha o status atual do aluno na sua interface */;
+  const novoStatus = !statusAtual; // Inverte o status
+  alterarStatusAluno(alunoId, novoStatus);
+});
+
+//listar
+>>>>>>> e3019d7723733a97165286ba372120296215917b
 async function buscarListarAlunos() {
   console.log("Buscando alunos...");
   try {

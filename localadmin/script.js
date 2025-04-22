@@ -42,7 +42,7 @@ function exibirAlunosNaTela(alunos) {
       <div>
           <h3 class="font-bold text-white">${aluno.id} - ${aluno.nome}</h3>
           <p class="text-sm text-gray-400">${formatarCPF(aluno.cpf)}</p>
-          <p class="text-sm text-gray-400">${aluno.status}</p>
+          <p class="text-sm text-gray-400">${aluno.status ? "Ativo" : "Bloqueado"}</p>
         </div>
         <div class="flex items-center gap-2">
           <span class="text-xs bg-purple-600 px-3 py-1 rounded-full text-white">ID: ${aluno.id}</span>

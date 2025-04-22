@@ -1,10 +1,22 @@
 const baseUrl = "https://api-catraca-weld.vercel.app/alunos";
 const lista_todos = "https://api-catraca-weld.vercel.app/alunos/lista";
 
+
+// criação
 const formularioCriacao = document.getElementById("create-form");
 const inputNomeCriacao = document.getElementById("create-name");
 const inputCpfCriacao = document.getElementById("create-cpf");
 const listaAlunos = document.getElementById("alunos-lista");
+
+// editar
+let formularioAtualizacao = document.getElementById('update-form');
+let inputAtualizacaoId = document.getElementById('update-id');
+let inputNomeAtualizacao = document.getElementById('update-name');
+let inputCPFAtualizacao = document.getElementById('update-cpf');
+let botaoCancelarAtualizacao = document.getElementById('cancel-update');
+
+const searchInput = document.getElementById("searchInput");
+const statusFilter = document.getElementById("statusFilter");
 
 function formatarCPF(valor) {
   return valor
@@ -28,17 +40,41 @@ function exibirAlunosNaTela(alunos) {
 
     div.innerHTML = `
       <div>
-        <h3 class="font-bold text-white">${aluno.nome}</h3>
-        <p class="text-sm text-gray-400">${formatarCPF(aluno.cpf)}</p>
+          <h3 class="font-bold text-white">${aluno.id} - ${aluno.nome}</h3>
+          <p class="text-sm text-gray-400">${formatarCPF(aluno.cpf)}</p>
+          <p class="text-sm text-gray-400">${aluno.status}</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs bg-purple-600 px-3 py-1 rounded-full text-white">ID: ${aluno.id}</span>
+          
+          <button 
+            class="edit-btn text-yellow-400 border border-yellow-400 px-2 py-1 rounded-md text-xs hover:bg-yellow-400 hover:text-black transition">
+            🖊️ Editar
+          </button>
+          
+          <button onclick="excluirAluno(${aluno.id})"
+            class="text-red-500 border border-red-500 px-2 py-1 rounded-md text-xs hover:bg-red-500 hover:text-white transition">
+            🗑️ Excluir
+          </button>
+          
+          <button onclick="alterarStatus(${aluno.id})"
+            class="text-blue-400 border border-blue-400 px-2 py-1 rounded-md text-xs hover:bg-blue-400 hover:text-black transition">
+            🔄 Status
+          </button>
       </div>
-      <span class="text-xs bg-purple-600 px-3 py-1 rounded-full text-white">ID: ${aluno.id}</span>
     `;
+
+    const botaoEditar = div.querySelector('.edit-btn');
+    botaoEditar.addEventListener('click', function () {
+      console.log(`Botão Editar clicado para o aluno ID: ${aluno.id}`);
+      exibirFormularioAtualizacao(aluno.id, aluno.nome, aluno.cpf);
+    });
 
     listaAlunos.appendChild(div);
   });
 }
 
-//listar
+// listar
 async function buscarListarAlunos() {
   console.log("Buscando alunos...");
   try {
@@ -54,7 +90,7 @@ async function buscarListarAlunos() {
   }
 }
 
-//adicionar
+// adicionar
 async function adicionarAluno(evento) {
   evento.preventDefault();
   console.log("Tentando adicionar um novo aluno...");
@@ -66,9 +102,6 @@ async function adicionarAluno(evento) {
     alert("Por favor, preencha o nome e CPF.");
     return;
   }
-
-console.log(nome)
-console.log(cpf)
 
   const novoAluno = {
     nome: nome,
@@ -84,18 +117,7 @@ console.log(cpf)
       body: JSON.stringify(novoAluno)
     });
 
-    // Pega a resposta como texto
-    const textoResposta = await response.json();
-
-    // Tenta converter a resposta para JSON
-    let resultadoApi;
-    try {
-      resultadoApi = JSON.parse(textoResposta);
-    } catch (erro) {
-      console.error("Falha ao adicionar aluno:", erro);
-      console.error("Resposta da API:", textoResposta); // Adicione esta linha
-      alert(`Erro ao adicionar aluno: ${erro.message}`)
-    }
+    const resultadoApi = await response.json();
 
     if (!response.ok) {
       throw new Error(resultadoApi.mensagem || `Erro ao adicionar aluno: ${response.status}`);
@@ -114,60 +136,183 @@ console.log(cpf)
   }
 }
 
-//editar
+// atualizar
 async function atualizarAluno(evento) {
   evento.preventDefault();
   console.log("Tentando atualizar aluno...");
 
   const id = inputAtualizacaoId.value;
   const nome = inputNomeAtualizacao.value;
-  const cpf = inputcpfAtualizacao.value;
+  const cpf = inputCPFAtualizacao.value;
 
   const dadosAlunoAtualizada = {
-      nome: nome,
-      cpf: cpf
+    nome: nome,
+    cpf: cpf
   };
 
   if (!id) {
-      console.error("ID da Aluno para atualização não encontrado!");
-      alert("Erro interno: ID da Aluno não encontrado para atualizar.");
-      return;
+    console.error("ID da Aluno para atualização não encontrado!");
+    alert("Erro interno: ID da Aluno não encontrado para atualizar.");
+    return;
   }
 
   if (!nome || !cpf) {
-      alert("Por favor, preencha a nome e a cpf para atualizar.");
-      return;
+    alert("Por favor, preencha o nome e o CPF para atualizar.");
+    return;
   }
 
   try {
-      const cpfHttp = await fetch(`${baseUrl}/${id}`, {
-          method: 'PUT',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(dadosAlunoAtualizada)
-      });
+    const respostaHttp = await fetch(`${baseUrl}/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(dadosAlunoAtualizada)
+    });
 
-      const resultadoApi = await cpfHttp.json();
+    const resultadoApi = await respostaHttp.json();
 
-      if (!cpfHttp.ok) {
-          throw new Error(resultadoApi.mensagem || `Erro ao atualizar Aluno: ${cpfHttp.status}`);
-      }
+    if (!respostaHttp.ok) {
+      throw new Error(resultadoApi.mensagem || `Erro ao atualizar aluno: ${respostaHttp.status}`);
+    }
 
-      console.log("Aluno atualizado com sucesso! ID:", id);
-      alert(resultadoApi.mensagem);
+    console.log("Aluno atualizado com sucesso! ID:", id);
+    alert(resultadoApi.mensagem);
 
-      esconderFormularioAtualizacao();
-      await buscarListarAlunos();
+    esconderFormularioAtualizacao();
+    await buscarListarAlunos();
 
   } catch (erro) {
-      console.error("Falha ao atualizar Aluno:", erro);
-      alert(`Erro ao atualizar Aluno: ${erro.message}`);
+    console.error("Falha ao atualizar aluno:", erro);
+    alert(`Erro ao atualizar aluno: ${erro.message}`);
   }
 }
 
-// Eventos
-formularioCriacao.addEventListener("submit", adicionarAluno);
+// esconder formulário de edição
+function esconderFormularioAtualizacao() {
+  formularioAtualizacao.classList.add("hidden");
+  inputAtualizacaoId.value = '';
+  inputNomeAtualizacao.value = '';
+  inputCPFAtualizacao.value = '';
+}
 
-// Inicialização
+// mostrar formulário de edição
+function exibirFormularioAtualizacao(id, nome, cpf) {
+  try {
+    console.log("Mostrando formulário de atualização para o aluno ID:", id);
+    inputAtualizacaoId.value = id;
+    inputNomeAtualizacao.value = nome;
+    inputCPFAtualizacao.value = cpf;
+    formularioAtualizacao.classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (erro) {
+    console.error("Erro ao carregar aluno para edição:", erro);
+    alert(`Erro ao editar aluno: ${erro.message}`);
+  }
+}
+
+// excluir
+async function excluirAluno(id) {
+  const aluno = await fetch(`${baseUrl}/${id}`).then(res => res.json());
+
+  if (!confirm(`Tem certeza que deseja excluir o aluno ${aluno.nome} com ID ${id}? Esta ação não pode ser desfeita.`)) {
+    console.log("Exclusão cancelada pelo usuário.");
+    return;
+  }
+
+  try {
+    const respostaHttp = await fetch(`${baseUrl}/${id}`, {
+      method: 'DELETE'
+    });
+
+    const resultadoApi = await respostaHttp.json();
+
+    if (!respostaHttp.ok) {
+      throw new Error(resultadoApi.mensagem || `Erro ao excluir aluno: ${respostaHttp.status}`);
+    }
+
+    console.log("Aluno excluído com sucesso!", id);
+    alert(resultadoApi.mensagem);
+    await buscarListarAlunos();
+
+  } catch (erro) {
+    console.error("Falha ao excluir aluno:", erro);
+    alert(`Erro ao excluir aluno: ${erro.message}`);
+  }
+}
+
+// alterar status
+async function alterarStatus(id) {
+  try {
+    const respostaAluno = await fetch(`${baseUrl}/${id}`);
+    if (!respostaAluno.ok) throw new Error("Aluno não encontrado.");
+
+    const aluno = await respostaAluno.json();
+    const novoStatus = aluno.status === true ? false : true;
+
+    const response = await fetch(`${baseUrl}/status/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ status: novoStatus })
+    });
+
+    const resultado = await response.json();
+
+    if (!response.ok) {
+      throw new Error(resultado.mensagem || `Erro ao alterar status: ${response.status}`);
+    }
+
+    alert(`Status alterado para: ${novoStatus ? 'ativo' : 'inativo'}.`);
+    buscarListarAlunos();
+
+  } catch (erro) {
+    console.error("Erro ao alterar status:", erro);
+    alert(`Erro ao alterar status: ${erro.message}`);
+  }
+}
+
+async function aplicarFiltros() {
+  try {
+    const resposta = await fetch(lista_todos);
+    const todosAlunos = await resposta.json();
+
+    const termoBusca = searchInput.value.trim().toLowerCase();
+    const statusSelecionado = statusFilter.value;
+
+    let alunosFiltrados = todosAlunos;
+
+    // Filtro por nome
+    if (termoBusca) {
+      alunosFiltrados = alunosFiltrados.filter(aluno =>
+        aluno.nome.toLowerCase().includes(termoBusca)
+      );
+    }
+
+    // Filtro por status
+    if (statusSelecionado !== "all") {
+      const statusBool = statusSelecionado === "active";
+      alunosFiltrados = alunosFiltrados.filter(aluno =>
+        aluno.status === statusBool
+      );
+    }
+
+    exibirAlunosNaTela(alunosFiltrados);
+
+  } catch (erro) {
+    console.error("Erro ao aplicar filtros:", erro);
+    listaAlunos.innerHTML = `<p class="text-red-500">Erro ao carregar alunos filtrados.</p>`;
+  }
+}
+
+// eventos
+formularioCriacao.addEventListener("submit", adicionarAluno);
+formularioAtualizacao.addEventListener('submit', atualizarAluno);
+botaoCancelarAtualizacao.addEventListener('click', esconderFormularioAtualizacao);
+searchInput.addEventListener("input", aplicarFiltros);
+statusFilter.addEventListener("change", aplicarFiltros);
+
+
+// inicialização
 buscarListarAlunos();

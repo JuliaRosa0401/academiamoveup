@@ -1,5 +1,5 @@
 const baseUrl = "https://api-catraca-weld.vercel.app";
-const aleatorio = "/alunos";
+const aleatorio = "/alunos/lista";
 
 const input = document.getElementById("cpfInput");
 const buttons = document.querySelectorAll(".btn-num");
@@ -35,11 +35,10 @@ function verificarCPFCompleto() {
     checkinBtn.classList.add("pronto");
   } else {
     checkinBtn.classList.remove("pronto");
-    
   }
 }
 
-function confirmar() {
+async function confirmar() {
   const cpfLimpo = input.value.replace(/\D/g, '');
   if (cpfLimpo.length !== 11) {
     input.classList.add("shake");
@@ -47,7 +46,21 @@ function confirmar() {
     return;
   }
 
-  const aluno = buscarAlunoPorCpf(cpfLimpo);
+  const aluno = await buscarAlunoPorCpf(cpfLimpo);
+  
+  // Se não encontrar aluno, cair diretamente para mensagem de "não encontrado"
+  if (!aluno || aluno.status === undefined) {
+    mostrarResultado({
+      nome: "Desconhecido",
+      cpf: cpfLimpo,
+      status: "não encontrado"
+    });
+  } else {
+    mostrarResultado(aluno);
+  }
+}
+
+function mostrarResultado(aluno) {
   const msg = document.getElementById("mensagemResultado");
   const box = document.getElementById("boxResultado");
   const resu = document.getElementById("msgresultado");
@@ -55,28 +68,33 @@ function confirmar() {
   document.getElementById("telaCpf").classList.add("hidden");
   document.getElementById("resultado").classList.remove("hidden");
 
-  switch (aluno.status.toLowerCase()) {
+  
+  const status = aluno.status === true ? "ativo" : 
+  aluno.status === false ? "bloqueado" : "não encontrado";
+
+  switch (status) {
     case "ativo":
-      msg.innerText = `"Boa sorte ${aluno.nome}! Você é mais forte do que imagina"`;
+      msg.innerText = `Boa sorte ${aluno.nome}! Você é mais forte do que imagina`;
       box.className = "border-2 border-black rounded-xl p-10 text-center text-lg font-semibold mb-6 bg-green-100 text-green-800";
-      resu.innerText = `"${aluno.nome} seu cpf: ${aluno.cpf} está Ativo "`; 
+      resu.innerText = `${aluno.nome}, seu CPF: ${aluno.cpf} está Ativo`; 
       break;
-      
+
     case "bloqueado":
-      msg.innerText = `"Bloqueado. Por favor, entre em contato com a administração."`;
-      box.className = "border-2 border-black rounded-xl p-10  text-center text-lg font-semibold mb-6 bg-red-100 text-red-800";
-      resu.innerText = `"${aluno.nome} seu cpf: ${aluno.cpf} está Bloqueado "`; 
+      msg.innerText = `Bloqueado. Por favor, entre em contato com a administração.`;
+      box.className = "border-2 border-black rounded-xl p-10 text-center text-lg font-semibold mb-6 bg-red-100 text-red-800";
+      resu.innerText = `${aluno.nome}, seu CPF: ${aluno.cpf} está Bloqueado`; 
       break;
+
     case "não encontrado":
-      msg.innerText = `"CPF não cadastrado. Tente novamente."`;
-      box.className = "border-2 border-black rounded-xl p-10 text-center text-lg font-semibold mb-6 bg-yellow-500 text-yellow-800";
-      resu.innerText = `"Você não está cadastrado, entre em contato com a administração ou tente outro cpf "`; 
-      break;
-    default:
-      msg.innerText = `"Status desconhecido."`;
-      box.className = "border-2 border-black rounded-xl p-10 text-center text-lg font-semibold mb-6 bg-gray-200 text-gray-700";
+      default:
+        msg.innerText = `CPF não cadastrado. Tente novamente.`;
+        box.className = "border-2 border-black rounded-xl p-10 text-center text-lg font-semibold mb-6 bg-yellow-500 text-yellow-800";
+        resu.innerText = `Você não está cadastrado. Entre em contato com a administração ou tente outro CPF.`; 
+        break;
   }
 }
+
+
 
 function cancelar() {
   input.value = "";
@@ -95,14 +113,16 @@ function voltarParaInicio() {
   cancelar();
 }
 
-function buscarAlunoPorCpf(cpf) {
-    const alunos = [
-      { cpf: "12345678901", nome: "João Silva", status: "ATIVO" },
-      { cpf: "11122233344", nome: "Maria Oliveira", status: "BLOQUEADO" },
-    ];
-  
-    const alunoEncontrado = alunos.find(aluno => aluno.cpf === cpf);
-  
+async function buscarAlunoPorCpf(cpf) {
+  try {
+    const response = await fetch(`${baseUrl}${aleatorio}`);
+    if (!response.ok) {
+      throw new Error("Erro ao buscar alunos");
+    }
+    const alunos = await response.json();
+
+    const alunoEncontrado = alunos.find(aluno => aluno.cpf.replace(/\D/g, '') === cpf);
+
     if (alunoEncontrado) {
       return alunoEncontrado;
     } else {
@@ -112,4 +132,12 @@ function buscarAlunoPorCpf(cpf) {
         status: "não encontrado"
       };
     }
+  } catch (error) {
+    console.error(error);
+    return {
+      nome: "Desconhecido",
+      cpf,
+      status: "não encontrado"
+    };
   }
+}

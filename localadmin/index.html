@@ -41,7 +41,7 @@
       <input id="create-name" type="text" placeholder="Nome completo"
         class="flex-1 px-4 py-2 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" />
 
-      <input id="create-cpf" type="text" maxlength="14" placeholder="000.000.000-00"
+      <input id="create-cpf" type="text" maxlength="11" placeholder="000.000.000-00"
         class="w-60 px-4 py-2 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" />
 
       <button type="submit"
@@ -49,6 +49,26 @@
         Adicionar</button>
     </form>
   </div>
+
+  <!--update-->
+  <form id="update-form" class="mb-4 p-6 border rounded-2xl bg-zinc-800 hidden shadow-xl">
+    <h2 class="text-xl font-semibold text-white mb-4">Editar Aluno</h2>
+    <input type="hidden" id="update-id">
+    
+    <div class="mb-4">
+        <label for="update-name" class="block text-sm font-medium text-gray-300">Nome:</label>
+        <input type="text" id="update-name" class="mt-1 p-2 border rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" required>
+    </div>
+    
+    <div class="mb-4">
+        <label for="update-cpf" class="block text-sm font-medium text-gray-300">CPF:</label>
+        <input type="text" id="update-cpf" class="mt-1 p-2 border rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" required>
+    </div>
+    
+    <button type="submit" class="bg-gradient-to-r from-purple-600 to-fuchsia-800 text-white font-semibold py-2 px-6 rounded-md hover:brightness-110 transition">Salvar Alterações</button>
+
+    <button type="button" id="cancel-update" class="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 px-6 rounded-md ml-2">Cancelar Edição</button>
+</form>
 
   <!-- Filtros -->
   <div class="w-full max-w-4xl flex flex-col md:flex-row justify-between gap-4 mb-6">
@@ -58,7 +78,7 @@
       class="w-40 px-4 py-2 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
       <option value="all">Todos</option>
       <option value="active">Ativos</option>
-      <option value="inactive">Bloqueados</option>
+      <option value="inactive">Inativos</option>
     </select>
   </div>
 
